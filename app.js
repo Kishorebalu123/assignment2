@@ -179,7 +179,8 @@ app.get("/tweets/:tweetId/",authenticateToken, async(request,response)=>{
     SELECT * FROM follower INNER JOIN user ON user.user_id=follower.following_user_id
       WHERE follower.follower_user_id='${userDetails.user_id}' `
     const following = await database.all(followingQuery)
-   
+   //console.log(following)
+
   if(following.some((each)=>each.following_user_id===tweet.user_id)){
 
 const getTweetsQuery=`
