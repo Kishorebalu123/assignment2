@@ -282,18 +282,18 @@ app.get("/user/tweets/",authenticateToken,async(request,response)=>{
     const userDetails = await database.get(selectUserQuery);
     
     const tweetQuery=`
-    SELECT tweet,COUNT(like.like_id) AS likes,COUNT(reply.reply_id) AS replies, tweet.date_time AS dateTime FROM tweet NATURAL JOIN like NATURAL JOIN reply NATURAL JOIN user
+    SELECT tweet,(SELECT COUNT(like_id) FROM like WHERE tweet_id=tweet.tweet_id ) AS likes,(SELECT COUNT(reply_id) FROM reply WHERE tweet_id=tweet.tweet_id) AS replies, date_time AS dateTime FROM tweet
    
-    GROUP BY tweet`
+    WHERE user_id='${userDetails.user_id}'`
     const  tweetsList= await database.all(tweetQuery)
     response.send(tweetsList.map((each)=>({tweet:each.tweet,likes:each.likes,replies:each.replies,dateTime:each.dateTime})))
    
 })
 
 app.post("/user/tweets/",authenticateToken,async(request,response)=>{
-const {tweet}=request.body
+const {newTweet} = request.body
     const postQuery=`
-    INSERT INTO tweet (tweet) VALUES('${tweet}')`
+    INSERT INTO tweet (tweet) VALUES ('${newTweet}')`
     await database.run(postQuery)
     response.send("Created a Tweet")
 })
