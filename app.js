@@ -291,9 +291,16 @@ app.get("/user/tweets/",authenticateToken,async(request,response)=>{
 })
 
 app.post("/user/tweets/",authenticateToken,async(request,response)=>{
-const {newTweet} = request.body
+  let { username } = request;
+
+    const selectUserQuery = `SELECT user_id FROM user WHERE username = '${username}'`;
+    const dbUser = await database.get(selectUserQuery);
+    const {user_id}=dbUser
+    const {tweet} = request.body
+    const date_time=new Date()
+    
     const postQuery=`
-    INSERT INTO tweet (tweet) VALUES ('${newTweet}')`
+    INSERT INTO tweet (tweet,user_id,date_time) VALUES ('${tweet}',${user_id},'${date_time}')`
     await database.run(postQuery)
     response.send("Created a Tweet")
 })
